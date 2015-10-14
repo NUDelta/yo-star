@@ -13,7 +13,7 @@ Meteor.methods({
         let currLobby = Lobbies.findOne({ active: false });
         Lobbies.update(currLobby._id,{ $push: { 'users': user.username } });
         Meteor.users.update(user._id, { $set: {'profile.isInLobby': true} })
-        Meteor.users.update(user._id, { $set: {'profile.lobby': currLobby} });
+        Meteor.users.update(user._id, { $set: {'profile.lobby': currLobby._id} });
         console.log('Lobby joined');
         console.log(user);
     },
