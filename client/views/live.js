@@ -2,9 +2,6 @@ let MAP_ZOOM = 17,
     locationId = 0;
 
 Template.live.onCreated(function() {
-    locationId = this.data;
-    console.log(locationId);
-
     GoogleMaps.ready('map', (map) => {
         let primaryMarker, otherMarkers = {};
         this.autorun(function() {
@@ -12,7 +9,7 @@ Template.live.onCreated(function() {
             let latLng = Geolocation.latLng();
 
             if (latLng) {
-                // Locations.update({ _id: locationId._id }, {$set: { location: latLng }});
+                Meteor.users.update(Meteor.userId(), {$set: {'profile.location': latLng}});
                 if (!primaryMarker) {
                     primaryMarker = new google.maps.Marker({
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
@@ -27,14 +24,14 @@ Template.live.onCreated(function() {
                 map.instance.setZoom(MAP_ZOOM);
             }
 
-            Locations.find().forEach(function(document) {
-                let latLng = document.location;
-                if (!(document.user in otherMarkers) && document.user != Meteor.userId()) {
-                    otherMarkers[document.user] = new google.maps.Marker({
+            Meteor.users.find().forEach(function(user) {
+                let latLng = user.profile.location;
+                if (!(user._id in otherMarkers) && user._id != Meteor.userId()) {
+                    otherMarkers[user._id] = new google.maps.Marker({
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
                         map: map.instance
                     });
-                } else if (document.user != Meteor.userId()){
+                } else if (user._id != Meteor.userId()){
                     otherMarkers[document.user].setPosition(latLng)
                 }
             });
