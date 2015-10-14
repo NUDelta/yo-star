@@ -1,12 +1,3 @@
-/*
-
-    ADD IN SERVER METHODS HERE.
-
-    e.g. if you need to call a secure function from the
-    serzer that has full access to database.
-
-*/
-
 Meteor.methods({
 	createLobby: function() {
 		Lobbies.insert({
