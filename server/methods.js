@@ -8,20 +8,20 @@ Meteor.methods({
 	},
     joinLobby: function(user) {
         if (Lobbies.find().count() === 0) {
-        	Meteor.call("createLobby");
+        	Meteor.call('createLobby');
         }
-        var currLobby = Lobbies.findOne({active: false});
-        Lobbies.update({ _id: Meteor.user().profile.lobby._id },{ $push: { "users": Meteor.user().username }});
-        Meteor.users.update({_id:Meteor.user()._id}, {$set:{"profile.isInLobby":true}})
-        Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.lobby": currLobby}});
+        let currLobby = Lobbies.findOne({active: false});
+        Lobbies.update(currLobby._id,{ $push: { 'users': user.username }});
+        Meteor.users.update(user._id, {$set: {'profile.isInLobby': true}})
+        Meteor.users.update(user._id, {$set: {'profile.lobby': currLobby}});
         console.log('Lobby joined');
         console.log(user);
     },
     leaveLobby: function(user) {
-    	
-        // Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.lobby": null}});
-        Lobbies.update({ _id: Meteor.user().profile.lobby._id },{ $pull: { "users": Meteor.user().username }});
-        Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.isInLobby": false}});
+
+        // Meteor.users.update({_id:user._id}, {$set: {'profile.lobby': null}});
+        Lobbies.update({ _id: user.profile.lobby._id },{ $pull: { 'users': user.username }});
+        Meteor.users.update(user._id, {$set: {'profile.isInLobby': false}});
     	console.log('Lobby left');
     }
 });
