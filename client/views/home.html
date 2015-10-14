@@ -1,5 +1,18 @@
 <template name="home">
-
-  <!-- RENAME/REORGANIZE THESE FILE AND ADD PAGE INFORMATION -->
-
+	<h1>Welcome to Yo*</h1>
+	{{> loginButtons}}
+	{{#if currentUser}}
+	{{#unless currentUser.profile.isInLobby}}
+	<button class="btn-join-lobby">Join Lobby</button>
+	{{/unless}}
+	{{#if currentUser.profile.isInLobby}}
+	<button class="btn-leave-lobby">Leave Lobby</button>
+	<h3>Lobby List</h3>
+	<ul>
+		{{#each usersInLobby}}
+		<li>{{ user }} test</li>
+		{{/each}}
+	</ul>
+	{{/if}}
+	{{/if}}
 </template>
