@@ -7,13 +7,13 @@ Meteor.methods({
 		});
 	},
     joinLobby: function(user) {
-        if (Lobbies.find().count() === 0) {
+        if (Lobbies.find({ active: false }).count() === 0) {
         	Meteor.call('createLobby');
         }
-        let currLobby = Lobbies.findOne({active: false});
-        Lobbies.update(currLobby._id,{ $push: { 'users': user.username }});
-        Meteor.users.update(user._id, {$set: {'profile.isInLobby': true}})
-        Meteor.users.update(user._id, {$set: {'profile.lobby': currLobby}});
+        let currLobby = Lobbies.findOne({ active: false });
+        Lobbies.update(currLobby._id,{ $push: { 'users': user.username } });
+        Meteor.users.update(user._id, { $set: {'profile.isInLobby': true} })
+        Meteor.users.update(user._id, { $set: {'profile.lobby': currLobby} });
         console.log('Lobby joined');
         console.log(user);
     },

@@ -1,0 +1,21 @@
+main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .container {
+        min-height: 500px;
+    }
+}
+
+.login-buttons {
+    float: right;
+    margin-right: 250px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
