@@ -5,23 +5,6 @@ Template.live.onCreated(function() {
         let primaryMarker, otherMarkers = {};
         this.autorun(function() {
             console.log('I just ran!');
-            let latLng = Geolocation.latLng();
-
-            if (latLng) {
-                Meteor.users.update(Meteor.userId(), {$set: {'profile.location': latLng}});
-                if (!primaryMarker) {
-                    primaryMarker = new google.maps.Marker({
-                        position: new google.maps.LatLng(latLng.lat, latLng.lng),
-                        map: map.instance
-                    });
-                }
-                else {
-                    primaryMarker.setPosition(latLng);
-                }
-
-                map.instance.setCenter(primaryMarker.getPosition());
-                map.instance.setZoom(MAP_ZOOM);
-            }
 
             Meteor.users.find({ lobby: Meteor.user().lobby }).forEach(function(user) {
                 let latLng = user.profile.location;
@@ -29,7 +12,8 @@ Template.live.onCreated(function() {
                     if (!(user._id in otherMarkers)) {
                         otherMarkers[user._id] = new google.maps.Marker({
                             position: new google.maps.LatLng(latLng.lat, latLng.lng),
-                            map: map.instance
+                            map: map.instance,
+                            icon: 'grey-dot.png'
                         });
                     } else {
                         otherMarkers[user._id].setPosition(latLng)
@@ -39,6 +23,24 @@ Template.live.onCreated(function() {
                     delete otherMarkers[user._id];
                 }
             });
+
+            let latLng = Geolocation.latLng();
+            if (latLng) {
+                Meteor.users.update(Meteor.userId(), {$set: {'profile.location': latLng}});
+                if (!primaryMarker) {
+                    primaryMarker = new google.maps.Marker({
+                        position: new google.maps.LatLng(latLng.lat, latLng.lng),
+                        map: map.instance,
+                        icon: 'blue-dot.png'
+                    });
+                }
+                else {
+                    primaryMarker.setPosition(latLng);
+                }
+
+                map.instance.setCenter(primaryMarker.getPosition());
+                map.instance.setZoom(MAP_ZOOM);
+            }
         });
     });
 });
