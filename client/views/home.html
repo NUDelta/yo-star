@@ -10,9 +10,13 @@
 	<h3>Lobby List</h3>
 	<ul>
 		{{#each usersInLobby}}
-		<li>{{ user }} test</li>
+		<li>{{ this }}</li>
 		{{/each}}
 	</ul>
 	{{/if}}
 	{{/if}}
+</template>
+
+<template name="username">
+		{{ username }}
 </template>

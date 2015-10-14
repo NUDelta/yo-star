@@ -9,7 +9,6 @@
 
 Meteor.methods({
 	createLobby: function() {
-		// Lobbies.remove({});
 		Lobbies.insert({
 			users: [],
 			active: false,
@@ -28,9 +27,10 @@ Meteor.methods({
         console.log(user);
     },
     leaveLobby: function(user) {
-    	Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.isInLobby": false}});
+    	
         // Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.lobby": null}});
         Lobbies.update({ _id: Meteor.user().profile.lobby._id },{ $pull: { "users": Meteor.user().username }});
+        Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.isInLobby": false}});
     	console.log('Lobby left');
     }
 });
