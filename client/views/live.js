@@ -2,15 +2,17 @@ let MAP_ZOOM = 17,
     locationId = 0;
 
 Template.live.onCreated(function() {
-    locationId = Locations.findOne({ user: Meteor.userId() });
+    locationId = this.data;
+    console.log(locationId);
 
     GoogleMaps.ready('map', (map) => {
         let primaryMarker, otherMarkers = {};
         this.autorun(function() {
+            console.log('I just ran!');
             let latLng = Geolocation.latLng();
 
             if (latLng) {
-                Locations.update({ _id: locationId }, {$set: { location: latLng }});
+                // Locations.update({ _id: locationId._id }, {$set: { location: latLng }});
                 if (!primaryMarker) {
                     primaryMarker = new google.maps.Marker({
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
@@ -32,7 +34,7 @@ Template.live.onCreated(function() {
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
                         map: map.instance
                     });
-                } else {
+                } else if (document.user != Meteor.userId()){
                     otherMarkers[document.user].setPosition(latLng)
                 }
             });
