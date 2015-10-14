@@ -29,6 +29,8 @@ Meteor.methods({
     },
     leaveLobby: function(user) {
     	Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.isInLobby": false}});
+        // Meteor.users.update({_id:Meteor.user()._id}, {$set: {"profile.lobby": null}});
+        Lobbies.update({ _id: Meteor.user().profile.lobby._id },{ $pull: { "users": Meteor.user().username }});
     	console.log('Lobby left');
     }
 });
