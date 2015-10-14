@@ -1,0 +1,12 @@
+<template name="live">
+    <header>
+		<div class="login-buttons">{{> loginButtons}}</div>
+	</header>
+    <div class="map-container">
+        {{#unless geolocationError}}
+            {{> googleMap name="map" options=mapOptions}}
+        {{else}}
+            Geolocation failed: {{geolocationError}}
+        {{/unless}}
+    </div>
+</template>
