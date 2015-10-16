@@ -1,1 +1,1 @@
-Lobbies = new Mongo.Collection("lobbys");
+Lobbies = new Mongo.Collection('lobbies');
