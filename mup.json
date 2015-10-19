@@ -2,7 +2,7 @@
   // Server authentication info
   "servers": [
     {
-      "host": "159.203.104.179",
+      "host": "yo-star.xyz",
       "username": "root",
       "pem": "~/.ssh/id_rsa"
     }
@@ -14,9 +14,9 @@
   "setupPhantom": true,
   "enableUploadProgressBar": true,
   "appName": "yo-star",
-  "app": "~/Documents/GitHub/yo-star",
+  "app": "/Users/aspin/yo-star",
   "env": {
-    "ROOT_URL": "http://159.203.104.179",
+    "ROOT_URL": "http://yo-star.xyz",
     "PORT": "80"
   },
   "deployCheckWaitTime": 15
