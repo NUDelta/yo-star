@@ -8,7 +8,7 @@ Template.live.onCreated(function() {
         this.autorun(function() {
             Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
                 let latLng = user.profile.location;
-                if (latLng && latLng != 0 && user._id != Meteor.userId()) {
+                if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
                     if (!(user._id in otherMarkers)) {
                         otherMarkers[user._id] = new google.maps.Marker({
                             position: new google.maps.LatLng(latLng.lat, latLng.lng),
@@ -18,7 +18,8 @@ Template.live.onCreated(function() {
                     } else {
                         otherMarkers[user._id].setPosition(latLng)
                     }
-                } else if (latLng == 0 && user._id in otherMarkers) {
+                } else if ((latLng == 0 || !user.profile.isInLobby) && user._id in otherMarkers) {
+                    console.log(`${user.username} went offline. Removing.`);
                     otherMarkers[user._id].setMap(null);
                     delete otherMarkers[user._id];
                 }
@@ -66,9 +67,9 @@ Template.live.helpers({
                 userLngs.push(user.profile.location.lng);
             });
             let lr = linearRegression(userLngs, userLats);
-            console.log("UserLats: " + userLats);
-            console.log("UserLngs: " + userLngs);
-            console.log("R-squared: " + lr.r2);
+            console.log('UserLats: ' + userLats);
+            console.log('UserLngs: ' + userLngs);
+            console.log('R-squared: ' + lr.r2);
             return lr.r2 ? lr.r2 : 0;
         } else {
             return 0;
