@@ -63,8 +63,8 @@ Template.live.helpers({
         let userLngs = [];
         if (Meteor.user()) {
             Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
-                userLats.push(user.profile.location.lat);
-                userLngs.push(user.profile.location.lng);
+                userLats.push(user.profile.location.lat * 10000);
+                userLngs.push(user.profile.location.lng * 10000);
             });
             let lr = linearRegression(userLngs, userLats);
             console.log('UserLats: ' + userLats);
