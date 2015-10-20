@@ -62,7 +62,7 @@ Template.live.helpers({
         let userLats = [];
         let userLngs = [];
         if (Meteor.user()) {
-            Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
+            Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby, 'profile.isInLobby': true }).forEach(function(user) {
                 userLats.push(user.profile.location.lat);
                 userLngs.push(user.profile.location.lng);
             });
