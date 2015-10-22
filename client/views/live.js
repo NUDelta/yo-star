@@ -39,6 +39,21 @@ Template.live.onCreated(function() {
                     primaryMarker.setPosition(latLng);
                 }
             }
+
+            // refactor this
+            if (Template.live.__helpers.get('score')() > 0.999) {
+                Object.keys(otherMarkers).forEach((key) => {
+                    let marker = otherMarkers[key];
+                    marker.setIcon('green-dot.png');
+                })
+                primaryMarker.setIcon('green-dot.png');
+            } else {
+                Object.keys(otherMarkers).forEach((key) => {
+                    let marker = otherMarkers[key];
+                    marker.setIcon('grey-dot.png');
+                })
+                primaryMarker.setIcon('blue-dot.png');
+            }
         });
     });
 });
