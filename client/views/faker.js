@@ -43,6 +43,9 @@ Template.faker.events({
     },
     'click #deleteFake': function(event, template) {
         let userId = event.target.getAttribute('user');
-        Meteor.users.remove(userId);
+        Meteor.users.update(userId, { $set: { 'profile.isInLobby': false } });
+        Meteor.setTimeout(function() {
+            Meteor.users.remove(userId);
+        }, 1000);
     }
 });

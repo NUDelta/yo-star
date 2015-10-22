@@ -1,19 +1,41 @@
 const MAP_ZOOM = 17;
 
 let primaryMarker,
+    bestFitLine,
     otherMarkers = {};
 
 Template.live.onCreated(function() {
     GoogleMaps.ready('map', (map) => {
+        const greyMarker = new google.maps.MarkerImage('grey-dot.png',
+                                                        new google.maps.Size(30, 30),
+                                                        new google.maps.Point(0, 0),
+                                                        new google.maps.Point(15, 15));
+
+        const blueMarker = new google.maps.MarkerImage('blue-dot.png',
+                                                        new google.maps.Size(30, 30),
+                                                        new google.maps.Point(0, 0),
+                                                        new google.maps.Point(15, 15));
+
+        const greenMarker = new google.maps.MarkerImage('green-dot.png',
+                                                        new google.maps.Size(30, 30),
+                                                        new google.maps.Point(0, 0),
+                                                        new google.maps.Point(15, 15));
+
         this.autorun(function() {
+            // REFACTOR ALL OF THIS
+            let userLats = [],
+                userLngs = [];
+
             Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
                 let latLng = user.profile.location;
+                userLats.push(latLng.lat * 10000);
+                userLngs.push(latLng.lng * 10000);
                 if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
                     if (!(user._id in otherMarkers)) {
                         otherMarkers[user._id] = new google.maps.Marker({
                             position: new google.maps.LatLng(latLng.lat, latLng.lng),
                             map: map.instance,
-                            icon: 'grey-dot.png'
+                            icon: greyMarker
                         });
                     } else {
                         otherMarkers[user._id].setPosition(latLng)
@@ -28,31 +50,56 @@ Template.live.onCreated(function() {
             // TODO: This will soon be deprecated for non-HTTPS domains.
             let latLng = Geolocation.latLng();
             if (latLng) {
+                userLats.push(latLng.lat * 10000);
+                userLngs.push(latLng.lng * 10000);
                 Meteor.users.update(Meteor.userId(), { $set: {'profile.location': latLng}} );
                 if (!primaryMarker) {
                     primaryMarker = new google.maps.Marker({
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
                         map: map.instance,
-                        icon: 'blue-dot.png'
+                        icon: blueMarker
                     });
                 } else {
                     primaryMarker.setPosition(latLng);
                 }
             }
 
-            // refactor this
-            if (Template.live.__helpers.get('score')() > 0.999) {
+            let minLat = arrayMin(userLats),
+                maxLat = arrayMax(userLats),
+                regression = linearRegression(userLats, userLngs);
+
+            let minLng = regression['slope'] * minLat + regression['intercept'],
+                maxLng = regression['slope'] * maxLat + regression['intercept'];
+
+            let path = [
+                new google.maps.LatLng(minLat / 10000, minLng / 10000),
+                new google.maps.LatLng(maxLat / 10000, maxLng / 10000)
+            ];
+
+            if (!bestFitLine) {
+                bestFitLine = new google.maps.Polyline({
+                    path: path,
+                    strokeColor: '#17be32',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2,
+                });
+                bestFitLine.setMap(map.instance)
+            } else {
+                bestFitLine.setPath(path);
+            }
+
+            if (Template.live.__helpers.get('score')() > 0.95) {
                 Object.keys(otherMarkers).forEach((key) => {
                     let marker = otherMarkers[key];
-                    marker.setIcon('green-dot.png');
+                    marker.setIcon(greenMarker);
                 })
-                primaryMarker.setIcon('green-dot.png');
+                primaryMarker.setIcon(greenMarker);
             } else {
                 Object.keys(otherMarkers).forEach((key) => {
                     let marker = otherMarkers[key];
-                    marker.setIcon('grey-dot.png');
+                    marker.setIcon(greyMarker);
                 })
-                primaryMarker.setIcon('blue-dot.png');
+                primaryMarker.setIcon(blueMarker);
             }
         });
     });
@@ -115,4 +162,12 @@ function linearRegression(x, y){
         lr['r2'] = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
         return lr;
+}
+
+function arrayMax(array) {
+  return array.reduce((a, b) => Math.max(a, b));
+}
+
+function arrayMin(array) {
+  return array.reduce((a, b) => Math.min(a, b));
 }
