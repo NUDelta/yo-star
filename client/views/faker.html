@@ -1,0 +1,33 @@
+<template name="faker">
+    <h1>Fake Location Manager</h1>
+    {{#each lobbies}}
+        <h2>Lobby {{_id}}</h2>
+        <h5>Real users:</h5>
+        {{#each users}}
+            <div>
+                {{#with getUser this}}
+                    <p>
+                        <strong>{{username}}</strong> is at:
+                        <form user="{{_id}}" action="">
+                            <input name="lat" type="text" value="{{profile.location.lat}}">,
+                            <input name="lng" type="text" value="{{profile.location.lng}}">
+                        </form>
+                    </p>
+                {{/with}}
+            </div>
+        {{/each}}
+        <h5>Fake users:</h5>
+        {{#each fakeUsers}}
+            <p>
+                <strong>{{username}}</strong> is at:
+                <form user="{{_id}}" action="">
+                    <input name="lat" type="text" value="{{profile.location.lat}}">,
+                    <input name="lng" type="text" value="{{profile.location.lng}}">
+                </form>
+            </p>
+            <button id="deleteFake" user="{{_id}}">Delete me</button>
+        {{/each}}
+        <br>
+        <button id="makeFake" lobby="{{_id}}">Make new fake user</button>
+    {{/each}}
+</template>
