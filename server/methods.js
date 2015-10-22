@@ -21,7 +21,7 @@ Meteor.methods({
         Lobbies.update(user.profile.lobby, { $pull: { 'users': user.username }});
         Meteor.users.update(user._id, {$set: {'profile.lobby': null}});
         Meteor.users.update(user._id, {$set: {'profile.isInLobby': false}});
-        console.log(`[leaveLobby] ${user.username} left lobby ${currLobby._id}`);
+        console.log(`[leaveLobby] ${user.username} left lobby ${user.profile.lobby}`);
     },
     log: function(message) {
         console.log(message);
