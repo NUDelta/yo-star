@@ -1,0 +1,14 @@
+<template name="faker">
+    <h1>Fake Location Manager</h1>
+    {{#each lobbies}}
+        <h2>Lobby Id: {{_id}}</h2>
+        {{#each users}}
+            <div>
+                {{#with getUser this}}
+                    <p>{{username}}</p>
+                    <p>Location: {{profile.location.lat}}, {{profile.location.lng}}</p>
+                {{/with}}
+            </div>
+        {{/each}}
+    {{/each}}
+</template>

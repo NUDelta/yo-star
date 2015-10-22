@@ -1,6 +1,6 @@
 Accounts.onCreateUser(function(options, user) {
     user.profile = options.profile || {};
-    user.profile.location = 0;
+    user.profile.location = user.profile.location || { lat: 0, lng: 0};
     return user;
 });
 
