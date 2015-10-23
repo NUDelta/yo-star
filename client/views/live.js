@@ -73,6 +73,9 @@ Template.live.helpers({
             };
         }
     },
+    messages: function() {
+      return Messages.find({}, {sort: {createdAt: -1}});
+    },
     score: function() {
         let userLats = [];
         let userLngs = [];

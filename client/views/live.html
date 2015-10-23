@@ -12,4 +12,13 @@
     <div class="score-wrapper">
         Score: {{score}}
     </div>
+    <div class="message-log">
+    <table>
+      <tbody>
+        {{#each messages}}
+        {{> message}}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 </template>

@@ -1,4 +1,13 @@
 Meteor.methods({
+    addMessage: function (message) {
+        Messages.insert({
+          message: message,
+          createdAt: new Date()
+      });
+    },
+    clearMessages: function() {
+        Messages.remove({});
+    },
     createLobby: function() {
         Lobbies.insert({
             users: [],

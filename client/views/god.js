@@ -10,7 +10,7 @@ Template.god.onCreated(function() {
                 let latLng = user.profile.location;
                 if (latLng && latLng != 0 && user.profile.isInLobby) {
                     if (!(user._id in otherMarkers)) {
-                    	console.log("hit");
+                        console.log("hit");
                         otherMarkers[user._id] = new google.maps.Marker({
                             position: new google.maps.LatLng(latLng.lat, latLng.lng),
                             map: map.instance,
@@ -43,6 +43,26 @@ Template.god.onCreated(function() {
     });
 });
 
+Template.god.events({
+    "submit .god-form": function (event) {
+      // Prevent default browser form submit
+      event.preventDefault();
+
+      // Get value from form element
+      var message = event.target[0].value;
+
+      // Add a message to the log
+      Meteor.call("addMessage", message);
+    },
+    "click .messages-clear": function (event) {
+      // Prevent default browser form submit
+      event.preventDefault();
+
+      // Add a message to the log
+      Meteor.call("clearMessages");
+    }
+});
+
 Template.god.helpers({
     geolocationError: function() {
         let error = Geolocation.error();
@@ -57,6 +77,9 @@ Template.god.helpers({
                 zoom: MAP_ZOOM
             };
         }
+    },
+    messages: function() {
+      return Messages.find({}, {sort: {createdAt: -1}});
     },
     score: function() {
         let userLats = [];

@@ -1,12 +1,39 @@
 <template name="god">
-    <div class="map-container">
-        {{#unless geolocationError}}
-            {{> googleMap name="map" options=mapOptions}}
-        {{else}}
-            Geolocation failed: {{geolocationError}}
-        {{/unless}}
+  <div class="map-container">
+    {{#unless geolocationError}}
+    {{> googleMap name="map" options=mapOptions}}
+    {{else}}
+    Geolocation failed: {{geolocationError}}
+    {{/unless}}
+  </div>
+  <div class="score-wrapper">
+    Score: {{score}}
+  </div>
+  <form class="god-form">
+    <div class="form-group">
+      <input type="name" class="input-name" id="input-name" placeholder="Message">
+      <button type="submit">Send</button>
     </div>
-    <div class="score-wrapper">
-        Score: {{score}}
-    </div>
+  </form>
+  <button class="messages-clear">Clear</button>
+  <div class="message-log">
+    <table>
+      <tbody>
+        {{#each messages}}
+        {{> message}}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<template name="message">
+  <tr>
+    <td>
+      <p>{{message}}</p>
+    </td>
+    <td>
+      <p>{{livestamp createdAt}}</p>
+    </td>
+  </tr>
 </template>
