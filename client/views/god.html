@@ -1,0 +1,12 @@
+<template name="god">
+    <div class="map-container">
+        {{#unless geolocationError}}
+            {{> googleMap name="map" options=mapOptions}}
+        {{else}}
+            Geolocation failed: {{geolocationError}}
+        {{/unless}}
+    </div>
+    <div class="score-wrapper">
+        Score: {{score}}
+    </div>
+</template>
