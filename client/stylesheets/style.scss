@@ -25,3 +25,12 @@ ul {
     display: block;
     margin-top: 10px;
 }
+
+@media (max-width: 400px) {
+    .map-container {
+        height: 300px;
+    }
+    td > p {
+        margin: 10px;
+    }
+}
