@@ -15,6 +15,9 @@ Meteor.methods({
             createdAt: new Date()
         });
     },
+    createFakeUser: function(userObject) {
+        Accounts.createUser(userObject);    
+    },
     joinLobby: function(user) {
         if (Lobbies.find({ active: false }).count() === 0) {
             Meteor.call('createLobby');

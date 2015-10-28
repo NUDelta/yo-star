@@ -6,8 +6,16 @@ Template.faker.helpers({
         return Meteor.users.findOne({ username: username });
     },
     fakeUsers: function() {
-        return Meteor.users.find({ 'profile.fake': true, 'profile.lobby': this._id});
-    }
+        return Meteor.users.find({ 'profile.fake': true, 'profile.lobby': this._id });
+    },
+    fakeCount: function() {
+        console.log('fakeCount');
+        return Meteor.users.find({ 'profile.fake': true, 'profile.lobby': this._id }).count();
+    },
+    realCount: function() {
+        // This query's not working, but it  should
+        return Meteor.users.find({ 'profile.lobby': this._id, 'profile.fake': { $ne: true } }).count();
+    },
 });
 
 Template.faker.events({
@@ -37,9 +45,7 @@ Template.faker.events({
                     fake: true,
                 }
             };
-        Accounts.createUser(userObject, (err) => {
-            Meteor.logout();
-        });
+        Meteor.call('createFakeUser', userObject);
     },
     'click #deleteFake': function(event, template) {
         let userId = event.target.getAttribute('user');

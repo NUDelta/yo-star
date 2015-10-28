@@ -2,7 +2,7 @@
     <h1>Fake Location Manager</h1>
     {{#each lobbies}}
         <h2>Lobby {{_id}}</h2>
-        <h5>Real users:</h5>
+        <h5>Real users (total: {{realCount}}):</h5>
         {{#each users}}
             <div>
                 {{#with getUser this}}
@@ -16,7 +16,7 @@
                 {{/with}}
             </div>
         {{/each}}
-        <h5>Fake users:</h5>
+        <h5>Fake users (total: {{fakeCount}}):</h5>
         {{#each fakeUsers}}
             <p>
                 <strong>{{username}}</strong> is at:
