@@ -64,6 +64,8 @@ Template.live.onCreated(function() {
                 }
             }
 
+            const extend = 4000; // if this is too high, things seem to get messed up? scale dependent.
+
             let minLat = arrayMin(userLats),
                 maxLat = arrayMax(userLats),
                 regression = linearRegression(userLats, userLngs);
@@ -71,9 +73,12 @@ Template.live.onCreated(function() {
             let minLng = regression['slope'] * minLat + regression['intercept'],
                 maxLng = regression['slope'] * maxLat + regression['intercept'];
 
+            let extMinLat = ((minLng - extend) - regression['intercept']) / regression['slope'],
+                extMaxLat = ((maxLng + extend) - regression['intercept']) / regression['slope'];
+
             let path = [
-                new google.maps.LatLng(minLat / 10000, minLng / 10000),
-                new google.maps.LatLng(maxLat / 10000, maxLng / 10000)
+                new google.maps.LatLng(extMinLat / 10000, minLng / 10000 - (extend / 10000)),
+                new google.maps.LatLng(extMaxLat / 10000, maxLng / 10000 + (extend / 10000))
             ];
 
             if (!bestFitLine) {
