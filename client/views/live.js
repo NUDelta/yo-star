@@ -41,7 +41,7 @@ Template.live.onCreated(function() {
             }
 
             // refactor this
-            if (Template.live.__helpers.get('score')() > 0.999) {
+            if (Template.live.__helpers.get('score')() > 0.8) {
                 Object.keys(otherMarkers).forEach((key) => {
                     let marker = otherMarkers[key];
                     marker.setIcon('green-dot.png');
