@@ -28,12 +28,14 @@ Meteor.methods({
         Meteor.users.update(user._id, { $set: {'profile.isInLobby': true} })
         Meteor.users.update(user._id, { $set: {'profile.lobby': currLobby._id} });
         console.log(`[joinLobby] ${user.username} joined lobby ${currLobby._id}`);
+        console.log('lobby:' + Lobbies.findOne().createdAt);
     },
     leaveLobby: function(user) {
         Lobbies.update(user.profile.lobby, { $pull: { 'users': user.username }});
         Meteor.users.update(user._id, {$set: {'profile.lobby': null}});
         Meteor.users.update(user._id, {$set: {'profile.isInLobby': false}});
         console.log(`[leaveLobby] ${user.username} left lobby ${user.profile.lobby}`);
+        Lobbies.remove(Lobbies.findOne( {'users.1': {$exists: false } })._id);
     },
     log: function(message) {
         console.log(message);
