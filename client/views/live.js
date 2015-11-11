@@ -58,6 +58,12 @@ Template.live.onCreated(function() {
     });
 });
 
+Meteor.setInterval(function() {
+    if (Session.get('timer') > 40) {
+        Router.go('home');
+    }
+}, 1000);
+
 Template.live.helpers({
     geolocationError: function() {
         let error = Geolocation.error();
@@ -91,6 +97,11 @@ Template.live.helpers({
             return lr.r2 ? lr.r2 : 0;
         } else {
             return 0;
+        }
+    },
+    timer: function () {
+        if (Session.get('timer') != undefined) {
+            return 530 - Session.get('timer');
         }
     }
 });

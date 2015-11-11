@@ -43,12 +43,15 @@ Template.home.events({
 });
 
 Template.home.onCreated(function() {
-
+    Session.set('timer', undefined);
+    Meteor.call('leaveLobby', Meteor.user());
 });
 
 Meteor.setInterval(function() {
     Session.set('timer', Session.get('timer') + 1);
-    console.log(Session.get('timer'));
+    if (Session.get('timer') > 29 && Session.get('timer') < 40) {
+        Router.go('live');
+    }
 }, 1000);
 
 Template.home.helpers({
