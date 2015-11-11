@@ -49,7 +49,8 @@ Template.home.onCreated(function() {
 
 Meteor.setInterval(function() {
     Session.set('timer', Session.get('timer') + 1);
-    if (Session.get('timer') > 29 && Session.get('timer') < 40) {
+    if (Session.get('timer') > 29 && Session.get('timer') < 31) {
+        Session.set('win', false);
         Router.go('live');
     }
 }, 1000);
@@ -65,6 +66,11 @@ Template.home.helpers({
             return Lobbies.findOne(Meteor.user().profile.lobby).users;
         } else {
             return [];
+        }
+    },
+    win: function() {
+        if (Session.get('win')) {
+            return "Congratulations, you won!";
         }
     }
 });

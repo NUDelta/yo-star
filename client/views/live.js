@@ -6,47 +6,54 @@ let primaryMarker,
 Template.live.onCreated(function() {
     GoogleMaps.ready('map', (map) => {
         this.autorun(function() {
-            Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
-                let latLng = user.profile.location;
-                if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
-                    if (!(user._id in otherMarkers)) {
-                        otherMarkers[user._id] = new google.maps.Marker({
+            if (Session.get('win') != true) {
+                Meteor.users.find({ 'profile.lobby': Meteor.user().profile.lobby }).forEach(function(user) {
+                    let latLng = user.profile.location;
+                    if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
+                        if (!(user._id in otherMarkers)) {
+                            otherMarkers[user._id] = new google.maps.Marker({
+                                position: new google.maps.LatLng(latLng.lat, latLng.lng),
+                                map: map.instance,
+                                icon: 'grey-dot.png'
+                            });
+                        } else {
+                            otherMarkers[user._id].setPosition(latLng)
+                        }
+                    } else if ((latLng == 0 || !user.profile.isInLobby) && user._id in otherMarkers) {
+                        console.log(`${user.username} went offline. Removing.`);
+                        otherMarkers[user._id].setMap(null);
+                        delete otherMarkers[user._id];
+                    }
+                });
+
+                // TODO: This will soon be deprecated for non-HTTPS domains.
+                let latLng = Geolocation.latLng();
+                if (latLng) {
+                    Meteor.users.update(Meteor.userId(), { $set: {'profile.location': latLng}} );
+                    if (!primaryMarker) {
+                        primaryMarker = new google.maps.Marker({
                             position: new google.maps.LatLng(latLng.lat, latLng.lng),
                             map: map.instance,
-                            icon: 'grey-dot.png'
+                            icon: 'blue-dot.png'
                         });
                     } else {
-                        otherMarkers[user._id].setPosition(latLng)
+                        primaryMarker.setPosition(latLng);
                     }
-                } else if ((latLng == 0 || !user.profile.isInLobby) && user._id in otherMarkers) {
-                    console.log(`${user.username} went offline. Removing.`);
-                    otherMarkers[user._id].setMap(null);
-                    delete otherMarkers[user._id];
-                }
-            });
-
-            // TODO: This will soon be deprecated for non-HTTPS domains.
-            let latLng = Geolocation.latLng();
-            if (latLng) {
-                Meteor.users.update(Meteor.userId(), { $set: {'profile.location': latLng}} );
-                if (!primaryMarker) {
-                    primaryMarker = new google.maps.Marker({
-                        position: new google.maps.LatLng(latLng.lat, latLng.lng),
-                        map: map.instance,
-                        icon: 'blue-dot.png'
-                    });
-                } else {
-                    primaryMarker.setPosition(latLng);
                 }
             }
 
             // refactor this
             if (Template.live.__helpers.get('score')() > 0.8) {
+                Session.set('win', true);
+                console.log("you win!!");
                 Object.keys(otherMarkers).forEach((key) => {
                     let marker = otherMarkers[key];
                     marker.setIcon('green-dot.png');
                 })
                 primaryMarker.setIcon('green-dot.png');
+                setTimeout(function() {
+                    Router.go('home');
+                }, 5000);
             } else {
                 Object.keys(otherMarkers).forEach((key) => {
                     let marker = otherMarkers[key];
@@ -59,7 +66,7 @@ Template.live.onCreated(function() {
 });
 
 Meteor.setInterval(function() {
-    if (Session.get('timer') > 40) {
+    if (Session.get('timer') > 60) {
         Router.go('home');
     }
 }, 1000);
