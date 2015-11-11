@@ -44,13 +44,14 @@ Template.home.events({
 
 Template.home.onCreated(function() {
     Session.set('timer', undefined);
-    Meteor.call('leaveLobby', Meteor.user());
+    // Meteor.call('leaveLobby', Meteor.user());
 });
 
 Meteor.setInterval(function() {
     Session.set('timer', Session.get('timer') + 1);
     if (Session.get('timer') > 29 && Session.get('timer') < 31) {
         Session.set('win', false);
+        Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
         Router.go('live');
     }
 }, 1000);

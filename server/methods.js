@@ -39,5 +39,11 @@ Meteor.methods({
     },
     log: function(message) {
         console.log(message);
+    },
+    makeLobbyActive: function(lobby) {
+        Lobbies.update(Lobbies.findOne({ _id: lobby}), { $set: {'active':true}});
+    },
+    makeLobbyInactive: function(lobby) {
+        Lobbies.update(Lobbies.findOne({ _id: lobby}), { $set: {'active':false}});
     }
 });

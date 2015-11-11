@@ -41,6 +41,9 @@ Template.live.onCreated(function() {
                     }
                 }
             }
+            else {
+                console.log("drawing failed");
+            }
 
             // refactor this
             if (Template.live.__helpers.get('score')() > 0.8) {
@@ -52,6 +55,7 @@ Template.live.onCreated(function() {
                 })
                 primaryMarker.setIcon('green-dot.png');
                 setTimeout(function() {
+                    Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
                     Router.go('home');
                 }, 5000);
             } else {
@@ -67,6 +71,7 @@ Template.live.onCreated(function() {
 
 Meteor.setInterval(function() {
     if (Session.get('timer') > 60) {
+        Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
         Router.go('home');
     }
 }, 1000);
