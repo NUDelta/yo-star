@@ -6,29 +6,11 @@ let primaryMarker,
 Template.live.onCreated(function() {
     GoogleMaps.ready('map', (map) => {
         this.autorun(function() {
-            if (Session.get('win') != true) {
-                Meteor.users.find({
-                    'profile.lobby': Meteor.user().profile.lobby
-                }).forEach(function(user) {
-                    let latLng = user.profile.location;
-                    if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
-                        if (!(user._id in otherMarkers)) {
-                            otherMarkers[user._id] = new google.maps.Marker({
-                                position: new google.maps.LatLng(latLng.lat, latLng.lng),
-                                map: map.instance,
-                                icon: 'grey-dot.png'
-                            });
-                        } else {
-                            otherMarkers[user._id].setPosition(latLng)
-                        }
-                    } else if ((latLng == 0 || !user.profile.isInLobby) && user._id in otherMarkers) {
-                        console.log(`${user.username} went offline. Removing.`);
-                        otherMarkers[user._id].setMap(null);
-                        delete otherMarkers[user._id];
-                    }
-                });
+            if (Session.get('win') !== true) {
+                locationUtil.updateLocations(map, otherMarkers);
 
                 // TODO: This will soon be deprecated for non-HTTPS domains.
+                // Does location updates for current client.
                 let latLng = Geolocation.latLng();
                 if (latLng) {
                     Meteor.users.update(Meteor.userId(), {
@@ -47,27 +29,23 @@ Template.live.onCreated(function() {
                     }
                 }
             } else {
-                console.log("drawing failed");
+                console.log('drawing failed');
             }
 
-            // refactor this
+            // Determines if win condition has been achieved.
+            // Changes colors if so.
             if (Template.live.__helpers.get('score')() === 3) {
                 Session.set('win', true);
-                console.log("you win!!");
-                Object.keys(otherMarkers).forEach((key) => {
-                    let marker = otherMarkers[key];
-                    marker.setIcon('green-dot.png');
-                })
+                locationUtil.turnGreen(otherMarkers);
                 primaryMarker.setIcon('green-dot.png');
+
+                // Kicks out users back to the lobby.
                 setTimeout(function() {
                     Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
                     Router.go('home');
                 }, 5000);
             } else {
-                Object.keys(otherMarkers).forEach((key) => {
-                    let marker = otherMarkers[key];
-                    marker.setIcon('grey-dot.png');
-                })
+                locationUtil.turnGrey(otherMarkers);
                 primaryMarker.setIcon('blue-dot.png');
             }
         });
@@ -81,7 +59,6 @@ Template.live.helpers({
     },
     mapOptions: function() {
         let latLng = Geolocation.latLng();
-        // Initialize the map once we have the latLng.
         if (GoogleMaps.loaded() && latLng) {
             return {
                 center: new google.maps.LatLng(latLng.lat, latLng.lng),
@@ -105,14 +82,8 @@ Template.live.helpers({
                 'profile.lobby': Meteor.user().profile.lobby,
                 'profile.isInLobby': true
             }).forEach(function(user) {
-                // userLats.push(user.profile.location.lat * 10000);
-                // userLngs.push(user.profile.location.lng * 10000);
-                points.push({x: user.profile.location.lat, y: user.profile.location.lng});
+                points.push({ x: user.profile.location.lat, y: user.profile.location.lng });
             });
-            // let lr = linearRegression(userLngs, userLats);
-            // console.log('UserLats: ' + userLats);
-            // console.log('UserLngs: ' + userLngs);
-            // console.log('R-squared: ' + lr.r2);
             let dp = douglasPeucker(points, 0.001);
             return dp.length;
         } else {
@@ -151,7 +122,7 @@ function linearRegression(x, y) {
     return lr;
 }
 
-var Line = function(p1, p2) {
+function Line(p1, p2) {
     this.p1 = p1;
     this.p2 = p2;
 
@@ -178,66 +149,64 @@ var Line = function(p1, p2) {
     };
 };
 
-var douglasPeucker = function(points, tolerance) {
-    //console.log("points this round ", points.map(function(x){return {lat:x.x,lng:x.y}}));
+function douglasPeucker(points, tolerance) {
+    //console.log('points this round ', points.map(function(x){return {lat:x.x,lng:x.y}}));
 
     if (points.length <= 2) {
         return [points[0]];
     }
     var returnPoints = [],
-        // make line from start to end 
+        // make line from start to end
         line = new Line(points[0], points[points.length - 1]),
-
 
         // find the largest distance from intermediate poitns to this line
         maxDistance = 0,
         maxDistanceIndex = 0,
         p;
 
-    //      console.log("making line between " +  points[0].x + ","+points[0].y + " and " + points[points.length - 1].x + ","+points[points.length-1].y)
+    //      console.log('making line between ' +  points[0].x + ','+points[0].y + ' and ' + points[points.length - 1].x + ','+points[points.length-1].y)
 
     for (var i = 1; i <= points.length - 2; i++) {
 
         var distance = line.distanceToPoint(points[i]);
 
-        //      console.log("considering...", points[i].x, points[i].y)
-
+        //      console.log('considering...', points[i].x, points[i].y)
         if (distance > maxDistance) {
             maxDistance = distance;
             maxDistanceIndex = i;
         }
     }
 
-    console.log("tolerance:", tolerance)
-    console.log("maxDist:", maxDistance)
-    console.log("maxDistIndex:", maxDistanceIndex)
+    // console.log('tolerance:', tolerance)
+    // console.log('maxDist:', maxDistance)
+    // console.log('maxDistIndex:', maxDistanceIndex)
 
-    // check if the max distance is greater than our tollerance allows 
+    // check if the max distance is greater than our tollerance allows
     if (maxDistance >= tolerance) {
         p = points[maxDistanceIndex];
 
-        console.log("including... ", maxDistanceIndex)
+        // console.log('including... ', maxDistanceIndex)
 
         line.distanceToPoint(p, true);
-        // include this point in the output 
-        console.log("calling with 0 to ", (maxDistanceIndex))
+        // include this point in the output
+        // console.log('calling with 0 to ', (maxDistanceIndex))
 
         returnPoints = returnPoints.concat(douglasPeucker(points.slice(0, maxDistanceIndex + 1), tolerance));
         // returnPoints.push( points[maxDistanceIndex] );
 
-        console.log("calling with  ", (maxDistanceIndex), " to ", (points.length - 1))
+        // console.log('calling with  ', (maxDistanceIndex), ' to ', (points.length - 1))
 
         returnPoints = returnPoints.concat(douglasPeucker(points.slice(maxDistanceIndex, points.length), tolerance));
     } else {
         // ditching this point
         p = points[maxDistanceIndex];
 
-        console.log("ditching " + maxDistanceIndex + ": " + p.x + ", " + p.y)
+        // console.log('ditching ' + maxDistanceIndex + ': ' + p.x + ', ' + p.y)
 
         line.distanceToPoint(p, true);
         returnPoints = [points[0]];
     }
-    console.log("returnPoints: ");
-    console.log(returnPoints);
+    // console.log('returnPoints: ');
+    // console.log(returnPoints);
     return returnPoints;
 };

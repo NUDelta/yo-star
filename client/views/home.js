@@ -18,9 +18,7 @@ Template.home.events({
         Session.set('timer', undefined);
     },
     'click .btn-logout': function(event, template) {
-        Meteor.logout(function(err) {
-
-        });
+        Meteor.logout();
     },
     'submit form': function(event, template) {
         event.preventDefault();
@@ -44,7 +42,7 @@ Template.home.events({
 Template.home.onCreated(function() {
     Session.set('timer', undefined);
 
-    var lobbyInterval = Meteor.setInterval(function() {
+    let lobbyInterval = setInterval(function() {
         Session.set('timer', Session.get('timer') + 1);
         if (Session.get('timer') > 29 && Session.get('timer') < 31) {
             Session.set('win', false);
@@ -56,7 +54,7 @@ Template.home.onCreated(function() {
             Meteor.call('makeLobbyInactive', Meteor.user().profile.lobby);
             Router.go('home');
             Meteor.call('leaveLobby', Meteor.user());
-            Meteor.clearInterval(lobbyInterval);
+            clearInterval(lobbyInterval);
         }
     }, 1000);
 });

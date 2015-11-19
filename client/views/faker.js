@@ -13,7 +13,6 @@ Template.faker.helpers({
         return Meteor.users.find({ 'profile.fake': true, 'profile.lobby': this._id }).count();
     },
     realCount: function() {
-        // This query's not working, but it  should
         return Meteor.users.find({ 'profile.lobby': this._id, 'profile.fake': { $ne: true } }).count();
     },
 });
@@ -49,6 +48,8 @@ Template.faker.events({
     },
     'click #deleteFake': function(event, template) {
         let userId = event.target.getAttribute('user');
-        Meteor.users.remove(userId);
+        Meteor.users.update(userId, { $set: { 'profile.isInLobby': false }}, () => {
+            Meteor.users.remove(userId);
+        });
     }
 });
