@@ -6,12 +6,12 @@ locationUtil = {
             'profile.lobby': Meteor.user().profile.lobby
         }).forEach(function(user) {
             let latLng = user.profile.location;
-            if (latLng && latLng != 0 && user._id != Meteor.userId() && user.profile.isInLobby) {
+            if (latLng && latLng != 0 && user.profile.isInLobby) {
                 if (!(user._id in markers)) {
                     markers[user._id] = new google.maps.Marker({
                         position: new google.maps.LatLng(latLng.lat, latLng.lng),
                         map: map.instance,
-                        icon: 'grey-dot.png'
+                        icon: Markers.greyMarker()
                     });
                 } else {
                     markers[user._id].setPosition(latLng)
@@ -27,14 +27,48 @@ locationUtil = {
     turnGreen: (markers) => {
       Object.keys(markers).forEach((key) => {
           let marker = markers[key];
-          marker.setIcon('green-dot.png');
+          marker.setIcon(Markers.greenMarker());
       });
     },
 
     turnGrey: (markers) => {
       Object.keys(markers).forEach((key) => {
           let marker = markers[key];
-          marker.setIcon('grey-dot.png');
+          marker.setIcon(Markers.greyMarker());
       });
+    },
+
+    getAllPoints: () => {
+      let points = [];
+      Meteor.users.find({
+          'profile.lobby': Meteor.user().profile.lobby,
+          'profile.isInLobby': true
+      }).forEach(function(user) {
+          points.push({ x: user.profile.location.lat, y: user.profile.location.lng });
+      });
+      return points
+    }
+};
+
+Markers = {
+    greyMarker: () => {
+        return new google.maps.MarkerImage('grey-dot.png',
+                                            new google.maps.Size(30, 30),
+                                            new google.maps.Point(0, 0),
+                                            new google.maps.Point(15, 15));
+    },
+
+    blueMarker: () => {
+        return new google.maps.MarkerImage('blue-dot.png',
+                                            new google.maps.Size(30, 30),
+                                            new google.maps.Point(0, 0),
+                                            new google.maps.Point(15, 15));
+    },
+
+    greenMarker: () => {
+        return new google.maps.MarkerImage('green-dot.png',
+                                            new google.maps.Size(30, 30),
+                                            new google.maps.Point(0, 0),
+                                            new google.maps.Point(15, 15));
     }
 }
