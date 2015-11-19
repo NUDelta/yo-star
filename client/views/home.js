@@ -1,8 +1,7 @@
 Template.home.events({
     'click .btn-join-lobby': function(event, template) {
         event.preventDefault();
-        Meteor.call('joinLobby', Meteor.user());
-        setTimeout(function() {
+        Meteor.call('joinLobby', Meteor.user(), function(error, results) {
             console.log(Meteor.user());
             var createdAt = Lobbies.findOne(Meteor.user().profile.lobby).createdAt;
             console.log('createdAt: ' + createdAt);
@@ -11,7 +10,7 @@ Template.home.events({
             
             console.log("timer: " + timer);
             Session.set('timer', timer);
-        }, 1000);
+        });
     },
     'click .btn-leave-lobby': function(event, template) {
         event.preventDefault();
