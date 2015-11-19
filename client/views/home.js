@@ -61,6 +61,14 @@ Template.home.helpers({
             return 30 - Session.get('timer');
         }
     },
+    timerIsRunning: function () {
+        if (Session.get('timer') && Session.get('timer') !== NaN) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
     usersInLobby: function () {
         if (Meteor.user() && Meteor.user().profile.lobby) {
             return Lobbies.findOne(Meteor.user().profile.lobby).users;
