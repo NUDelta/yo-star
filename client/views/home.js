@@ -6,8 +6,8 @@ Template.home.events({
             var createdAt = Lobbies.findOne(Meteor.user().profile.lobby).createdAt;
             console.log('createdAt: ' + createdAt);
             Session.set('createdAt', createdAt);
-            var timer = Math.floor((Date.now() - Date.parse(Session.get('createdAt')))/1000);
-            
+            var timer = Math.floor((Date.now() - Date.parse(Session.get('createdAt'))) / 1000);
+
             console.log("timer: " + timer);
             Session.set('timer', timer);
         });
@@ -33,7 +33,7 @@ Template.home.events({
                 };
                 Accounts.createUser(userObject, function(err) {
                     if (err) {
-                     // handle case with username already taken
+                        // handle case with username already taken
                     }
                 });
             }
@@ -43,33 +43,39 @@ Template.home.events({
 
 Template.home.onCreated(function() {
     Session.set('timer', undefined);
-    // Meteor.call('leaveLobby', Meteor.user());
+
+    var lobbyInterval = Meteor.setInterval(function() {
+        Session.set('timer', Session.get('timer') + 1);
+        if (Session.get('timer') > 29 && Session.get('timer') < 31) {
+            Session.set('win', false);
+            Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
+            Router.go('live');
+        }
+
+        if (Session.get('timer') > 570) {
+            Meteor.call('makeLobbyInactive', Meteor.user().profile.lobby);
+            Router.go('home');
+            Meteor.call('leaveLobby', Meteor.user());
+            Meteor.clearInterval(lobbyInterval);
+        }
+    }, 1000);
 });
 
-Meteor.setInterval(function() {
-    Session.set('timer', Session.get('timer') + 1);
-    if (Session.get('timer') > 29 && Session.get('timer') < 31) {
-        Session.set('win', false);
-        Meteor.call('makeLobbyActive', Meteor.user().profile.lobby);
-        Router.go('live');
-    }
-}, 1000);
 
 Template.home.helpers({
-    timer: function () {
+    timer: function() {
         if (Session.get('timer') != undefined) {
             return 30 - Session.get('timer');
         }
     },
-    timerIsRunning: function () {
+    timerIsRunning: function() {
         if (Session.get('timer') && Session.get('timer') !== NaN) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     },
-    usersInLobby: function () {
+    usersInLobby: function() {
         if (Meteor.user() && Meteor.user().profile.lobby) {
             return Lobbies.findOne(Meteor.user().profile.lobby).users;
         } else {

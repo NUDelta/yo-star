@@ -74,13 +74,6 @@ Template.live.onCreated(function() {
     });
 });
 
-Meteor.setInterval(function() {
-    if (Session.get('timer') > 600) {
-        Meteor.call('makeLobbyInactive', Meteor.user().profile.lobby);
-        Router.go('home');
-    }
-}, 1000);
-
 Template.live.helpers({
     geolocationError: function() {
         let error = Geolocation.error();
